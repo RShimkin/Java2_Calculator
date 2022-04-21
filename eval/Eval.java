@@ -40,10 +40,10 @@ public class Eval {
         
         String[] exps = new String[] {
             "100 + 200",
-            "  (300 + 20*(-3))     /9",
-            "16 + 2*x^3"
+            "14 + 2*(-5) + (8-9)*14",
+            "16 + 2*x^3",
         };
-        System.out.println(exps.length);
+        //System.out.println(exps.length);
         for (String exp : exps) {
             calculate(exp);
         }

@@ -22,8 +22,8 @@ public class ExpressionCalculator {
      */
     private int priority(char sign)
     {
-        int prior;
         
+        int prior;
         switch (sign) {
             case '+': 
             case '-':
@@ -37,7 +37,7 @@ public class ExpressionCalculator {
                 prior = 3;
                 break;
             default:
-                prior = 4;
+                prior = 0;
         }
         return prior;
     }
@@ -49,11 +49,11 @@ public class ExpressionCalculator {
      */
     private Sym symCheck(char sign)
     {
-        if (sign>='0' && sign<='9' || sign=='.')
-            return Sym.NUM;
         if (sign=='+' || sign=='-' || sign=='*'|| sign=='/'|| sign==')' || sign=='('|| sign=='^')
             return Sym.SIGN;
-        if (sign>='A' && sign<='Z' || sign>='a' && sign<='z')
+        if (sign>='0' && sign<='9' || sign=='.')
+            return Sym.NUM;
+        if (sign>='a' && sign<='z' || sign>='A' && sign<='Z')
             return Sym.VAR;
         return Sym.SPACE;
     }
@@ -67,34 +67,39 @@ public class ExpressionCalculator {
      */
     private float simpleOperation(float left, float right, char sign)
     {
+        float res = 0.0f;
         switch (sign)
         {
             case '-':
-                return left-right;
+                res = left-right;
+                break;
             case '+':
-                return left+right;
+                res =  left+right;
+                break;
             case '/':
-                return left/right;
+                res = left/right;
+                break;
             case '*':
-                return left*right;
+                res = left*right;
+                break;
             case '^':
-                return (float)Math.pow(left, right);
+                res = (float)Math.pow(left, right);
         }
-        return 0.0f;
+        return res;
     }
 
     /**
      * Считает число знаков в выражении
-     * @param exp выражение
+     * @param str выражение
      * @return количество знаков
      */
-    private int numOfSigns(String exp)
+    private int numOfSigns(String str)
     {
-        int count=0;
-        for (char x: exp.toCharArray()) 
+        int count = 0;
+        for (int i=0; i < str.length(); i++)
         {
-            if (symCheck(x) == Sym.SIGN)
-                ++count;
+            if (symCheck(str.charAt(i)) == Sym.SIGN)
+                count++;
         }
         return count;
     }
@@ -153,8 +158,6 @@ public class ExpressionCalculator {
      */
     private String fixExpression(String exp)
     {
-        //StringBuilder sb = new StringBuilder();
-        //System.out.println("Before: " + exp);
         exp = ' ' + exp + ' ';
         for(int i=0; i<exp.length()-1; i++)
         {
@@ -177,7 +180,6 @@ public class ExpressionCalculator {
                 exp=exp.substring(0,i+1) + '*' + exp.substring(i+1);
             }
         }
-        //System.out.println("After: " + exp.substring(1,exp.length()-1));
         return exp.substring(1,exp.length()-1);
     }
 
@@ -193,19 +195,13 @@ public class ExpressionCalculator {
     {
         for(int k=0;k<count;k++)
         {
-            if(name.equals(vars[k]))
+            if(vars[k].equals(name))
             {
                 return k;
             }
         }
         return -1;
     }
-
-    
-    
-    
-    
-    
     
     /**
      * Подготавливает вычисления, определение переменных
@@ -272,20 +268,20 @@ public class ExpressionCalculator {
         int i=0;
         while(exp.length()>i)
         {
-            char x = exp.charAt(i);
-            if(symCheck(x)==Sym.SIGN)
+            //char x = exp.charAt(i);
+            if(symCheck(exp.charAt(i))==Sym.SIGN)
             {
-                if(signCount==0 || x=='(')
+                if(signCount==0 || exp.charAt(i)=='(')
                 {
-                    signs[signCount] = x;
+                    signs[signCount] = exp.charAt(i);
                     signCount++;
                 }
-                else if(priority(signs[signCount-1])<priority(x))
+                else if(priority(signs[signCount-1])<priority(exp.charAt(i)))
                 {
-                    signs[signCount]=x;
+                    signs[signCount]=exp.charAt(i);
                     signCount++;
                 }
-                else if(x == ')')
+                else if(exp.charAt(i) == ')')
                 {
                     signCount--;
                     while(signCount>=0 && signs[signCount]!='(')
@@ -299,14 +295,14 @@ public class ExpressionCalculator {
                 else
                 {
                     signCount--;
-                    while (signCount>=0 && priority(signs[signCount])>=priority(x))
+                    while (signCount>=0 && priority(signs[signCount])>=priority(exp.charAt(i)))
                     {
                         polish += signs[signCount];
                         signs[signCount]=' ';
                         signCount--;
                     }
                     signCount++;
-                    signs[signCount]=x;
+                    signs[signCount]=exp.charAt(i);
                     signCount++;
                 }
                 i++;
@@ -316,7 +312,7 @@ public class ExpressionCalculator {
                 nums[countNum] = nextFloat(exp, i);
                 polish += '#' + Integer.toString(countNum);
                 countNum++;
-                while(i<exp.length() && symCheck(x)==Sym.NUM)
+                while(i<exp.length() && symCheck(exp.charAt(i))==Sym.NUM)
                     i++;
             }
         }
@@ -345,7 +341,7 @@ public class ExpressionCalculator {
 
             for(int k=1; k>=0; k--)
             {
-                if (symCheck(x) == Sym.SIGN) {
+                if (symCheck(polish.charAt(i)) == Sym.SIGN) {
                     num[k] = calculateReversePolish(nums, numCount, polish, i);
                     i = skipPosition(polish, i);
                 } else {
@@ -380,19 +376,19 @@ public class ExpressionCalculator {
         while(num - sign != 1)
         {
             char x = pol.charAt(i);
-            if(symCheck(x)==Sym.NUM)
+            if(symCheck(pol.charAt(i))==Sym.NUM)
             {
-                ++num;
-                while(symCheck(x)==Sym.NUM)
+                num++;
+                while(symCheck(pol.charAt(i))==Sym.NUM)
                 {
                     i--;
                 }
-                --i;
+                i--;
             }
-            else if(symCheck(x)==Sym.SIGN)
+            else if(symCheck(pol.charAt(i))==Sym.SIGN)
             {
                 sign++;
-                --i;
+                i--;
             }
             else
             {
@@ -430,9 +426,10 @@ public class ExpressionCalculator {
         for(int i=0;i<str.length()-1;i++)
         {
             if(symCheck(str.charAt(i))==Sym.VAR && (symCheck(str.charAt(i+1))!=Sym.VAR))
-                ++count;
+                count++;
         }
-        return ++count;
+        count++;
+        return count;
     }
 
     /**
@@ -447,7 +444,7 @@ public class ExpressionCalculator {
         while(i>=0 && symCheck(exp.charAt(i))==Sym.NUM)
         {
             num = exp.charAt(i) + num;
-            --i;
+            i--;
         }
         return Integer.parseInt(num);
     }
@@ -464,7 +461,7 @@ public class ExpressionCalculator {
         while(i<exp.length() && symCheck(exp.charAt(i))==Sym.NUM)
         {
             num += exp.charAt(i);
-            ++i;
+            i++;
         }
         return Float.parseFloat(num);
     }
